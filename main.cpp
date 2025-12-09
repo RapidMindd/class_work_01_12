@@ -173,6 +173,40 @@ bool operator!=(p_t a, p_t b)
     size_t length;
   };
 
+  struct InclinedSeg:IDraw
+  {
+    InclinedSeg(p_t start, size_t length);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    p_t start;
+    size_t length;
+  };
+
+  top::InclinedSeg::InclinedSeg(p_t s, size_t len):
+    IDraw(),
+    start{s.x, s.y},
+    length(len)
+  {
+    if (!len)
+    {
+      throw std::invalid_argument("length must be positive");
+    }
+  }
+
+  top::p_t top::InclinedSeg::begin() const
+  {
+    return start;
+  }
+
+  top::p_t top::InclinedSeg::next(p_t point) const
+  {
+    if (point.x == start.x + (length - 1))
+    {
+      return begin();
+    }
+    return p_t{point.x + 1, point.y + 1};
+  }
+
   top::VSeg::VSeg(p_t s, size_t len):
     IDraw(),
     start{s.x, s.y},
@@ -229,8 +263,9 @@ bool operator!=(p_t a, p_t b)
     b[1] = new Dot(-2, -5);
     b[2] = new Dot(7, 7);
     b[3] = new VSeg({2, 1}, 5);
-    b[4] = new HSeg({2, -2}, 10);
-    k = 5;
+    b[4] = new HSeg({3, 0}, 9);
+    b[5] = new InclinedSeg({2, 0}, 5);
+    k = 6;
   }
 }
 
@@ -238,7 +273,7 @@ int main()
 {
   int err = 0;
   using namespace top;
-  IDraw * f[5] = {};
+  IDraw * f[6] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
