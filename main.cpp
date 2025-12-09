@@ -66,14 +66,6 @@ bool operator!=(p_t a, p_t b)
     p_t bb;
   };
 
-  void make_f(IDraw ** b, size_t &k)
-  {
-    b[0] = new Dot(0, 0);
-    b[1] = new Dot(-2, -5);
-    b[2] = new Dot(3, 7);
-    k = 3;
-  }
-
   void extend(p_t ** pts, size_t s, p_t p)
   {
     p_t * res = new p_t [s + 1];
@@ -164,15 +156,63 @@ bool operator!=(p_t a, p_t b)
     // не выводить лишний пробел!
   }
 
-  struct VSeg;
-  struct HSeg;
+  struct VSeg:IDraw
+  {
+    VSeg(p_t start, size_t length);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    p_t start;
+    size_t length;
+  };
+  struct HSeg:IDraw
+  {
+    HSeg(p_t start, size_t length);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    p_t start;
+    size_t length;
+  };
+
+  top::VSeg::VSeg(p_t s, size_t len):
+    IDraw(),
+    start{s.x, s.y},
+    length(len)
+  {
+    if (!len)
+    {
+      throw std::invalid_argument("length must be positive");
+    }
+  }
+
+  top::p_t top::VSeg::begin() const
+  {
+    return start;
+  }
+
+  top::p_t top::VSeg::next(p_t point) const
+  {
+    if (point.y == start.y + (length - 1))
+    {
+      return begin();
+    }
+    return p_t{start.x, point.y + 1};
+  }
+
+  void make_f(IDraw ** b, size_t &k)
+  {
+    b[0] = new Dot(0, 0);
+    b[1] = new Dot(-2, -5);
+    b[2] = new Dot(3, 7);
+    b[3] = new VSeg({2, 1}, 5);
+    k = 4;
+  }
 }
 
 int main()
 {
   int err = 0;
   using namespace top;
-  IDraw * f[3] = {};
+  IDraw * f[4] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
