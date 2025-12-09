@@ -257,6 +257,51 @@ bool operator!=(p_t a, p_t b)
     return p_t{point.x + 1, start.y};
   }
 
+  p_t next_point_in_rec(p_t point, frame_t frame)
+  {
+    if (point.x == frame.aa.x && point.y < frame.bb.y)
+    {
+      return {point.x, point.y + 1};
+    }
+    if (point.y == frame.bb.y && point.x < frame.bb.x)
+    {
+      return {point.x + 1, point.y};
+    }
+    if (point.x == frame.bb.x && point.y > frame.aa.y)
+    {
+      return {point.x, point.y - 1};
+    }
+    if (point.y == frame.aa.y && point.x > frame.aa.x)
+    {
+      return {point.x - 1, point.y};
+    }
+    return frame.aa;
+  }
+
+  struct Rectangle:IDraw
+  {
+    Rectangle(p_t start, size_t width, size_t height);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    frame_t frame;
+  };
+
+  top::Rectangle::Rectangle(p_t start, size_t width, size_t height):
+    IDraw(),
+    frame({start, {static_cast<int>(start.x + (width - 1)), static_cast<int>(start.y + (height - 1))}})
+  {
+  }
+
+  top::p_t top::Rectangle::begin() const
+  {
+    return frame.aa;
+  }
+
+  top::p_t top::Rectangle::next(p_t point) const
+  {
+    return next_point_in_rec(point, frame);
+  }
+
   void make_f(IDraw ** b, size_t &k)
   {
     b[0] = new Dot(0, 0);
@@ -265,7 +310,8 @@ bool operator!=(p_t a, p_t b)
     b[3] = new VSeg({2, 1}, 5);
     b[4] = new HSeg({3, 0}, 9);
     b[5] = new InclinedSeg({2, 0}, 5);
-    k = 6;
+    b[6] = new Rectangle({0, -3}, 4, 3);
+    k = 7;
   }
 }
 
@@ -273,7 +319,7 @@ int main()
 {
   int err = 0;
   using namespace top;
-  IDraw * f[6] = {};
+  IDraw * f[7] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
