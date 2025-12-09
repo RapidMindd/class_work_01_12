@@ -66,11 +66,12 @@ bool operator!=(p_t a, p_t b)
     p_t bb;
   };
 
-  void make_f(IDraw ** b, size_t k)
+  void make_f(IDraw ** b, size_t &k)
   {
     b[0] = new Dot(0, 0);
-    b[1] = new Dot(-1, -5);
-    b[2] = new Dot(1, 7);
+    b[1] = new Dot(-2, -5);
+    b[2] = new Dot(3, 7);
+    k = 3;
   }
 
   void extend(p_t ** pts, size_t s, p_t p)
@@ -85,7 +86,7 @@ bool operator!=(p_t a, p_t b)
     *pts = res;
   }
 
-  size_t get_points(const IDraw & b, p_t ** pts, size_t & s)
+  void get_points(const IDraw & b, p_t ** pts, size_t & s)
   {
     p_t p = b.begin();
     extend(pts, s, p);
@@ -96,7 +97,7 @@ bool operator!=(p_t a, p_t b)
       extend(pts, s + delta, p);
       ++delta;
     }
-    return delta;
+    s = s + delta;
     // достать точки
     // обновить массив
     // размер!
@@ -177,13 +178,18 @@ int main()
   char * cnv = nullptr;
   try
   {
-    make_f(f, 3);
-    for (size_t i = 0; i < 3; ++i)
+    size_t size = 0;
+    make_f(f, size);
+    for (size_t i = 0; i < size; ++i)
     {
       get_points(*f[i], &p, s);
     }
     frame_t fr = build_frame(p, s);
-    cnv = build_canvas(fr, ' ');
+    cnv = build_canvas(fr, '.');
+    for (size_t i = 0; i < s; ++i)
+    {
+      paint_canvas(cnv, fr, p[i], '#');
+    }
     paint_canvas(cnv, fr, *p, '#');
     print_canvas(std::cout, cnv, fr);
   }
