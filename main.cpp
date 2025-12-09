@@ -198,13 +198,39 @@ bool operator!=(p_t a, p_t b)
     return p_t{start.x, point.y + 1};
   }
 
+  top::HSeg::HSeg(p_t s, size_t len):
+    IDraw(),
+    start{s.x, s.y},
+    length(len)
+  {
+    if (!len)
+    {
+      throw std::invalid_argument("length must be positive");
+    }
+  }
+
+  top::p_t top::HSeg::begin() const
+  {
+    return start;
+  }
+
+  top::p_t top::HSeg::next(p_t point) const
+  {
+    if (point.x == start.x + (length - 1))
+    {
+      return begin();
+    }
+    return p_t{point.x + 1, start.y};
+  }
+
   void make_f(IDraw ** b, size_t &k)
   {
     b[0] = new Dot(0, 0);
     b[1] = new Dot(-2, -5);
-    b[2] = new Dot(3, 7);
+    b[2] = new Dot(7, 7);
     b[3] = new VSeg({2, 1}, 5);
-    k = 4;
+    b[4] = new HSeg({2, -2}, 10);
+    k = 5;
   }
 }
 
@@ -212,7 +238,7 @@ int main()
 {
   int err = 0;
   using namespace top;
-  IDraw * f[4] = {};
+  IDraw * f[5] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
