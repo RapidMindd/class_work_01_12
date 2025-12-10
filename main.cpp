@@ -363,6 +363,30 @@ bool operator!=(p_t a, p_t b)
     return next_point_in_filled(point, frame);
   }
 
+  struct FilledRect:IDraw
+  {
+    FilledRect(p_t start, size_t width, size_t height);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    frame_t frame;
+  };
+
+  top::FilledRect::FilledRect(p_t start, size_t width, size_t height):
+    IDraw(),
+    frame({start, {static_cast<int>(start.x + (width - 1)), static_cast<int>(start.y + (height - 1))}})
+  {
+  }
+
+  top::p_t top::FilledRect::begin() const
+  {
+    return frame.aa;
+  }
+
+  top::p_t top::FilledRect::next(p_t point) const
+  {
+    return next_point_in_filled(point, frame);
+  }
+
   void make_f(IDraw ** b, size_t &k)
   {
     b[0] = new Dot(0, 0);
@@ -374,7 +398,8 @@ bool operator!=(p_t a, p_t b)
     b[6] = new Rectangle({0, -3}, 4, 3);
     b[7] = new Square({20, 3}, 3);
     b[8] = new FilledSquare({20, -3}, 3);
-    k = 9;
+    b[9] = new FilledRect({30, -3}, 3, 5);
+    k = 10;
   }
 }
 
@@ -382,7 +407,7 @@ int main()
 {
   int err = 0;
   using namespace top;
-  IDraw * f[9] = {};
+  IDraw * f[10] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
