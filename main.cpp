@@ -278,6 +278,19 @@ bool operator!=(p_t a, p_t b)
     return frame.aa;
   }
 
+  p_t next_point_in_filled(p_t point, frame_t frame)
+  {
+    if (point == frame.bb)
+    {
+      return frame.aa;
+    }
+    if (point.x == frame.bb.x)
+    {
+      return {frame.aa.x, point.y + 1};
+    }
+    return {point.x + 1, point.y};
+  }
+
   struct Rectangle:IDraw
   {
     Rectangle(p_t start, size_t width, size_t height);
@@ -326,6 +339,30 @@ bool operator!=(p_t a, p_t b)
     return next_point_in_rec(point, frame);
   }
 
+  struct FilledSquare:IDraw
+  {
+    FilledSquare(p_t start, size_t size);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    frame_t frame;
+  };
+
+  top::FilledSquare::FilledSquare(p_t start, size_t size):
+    IDraw(),
+    frame({start, {static_cast<int>(start.x + (size - 1)), static_cast<int>(start.y + (size - 1))}})
+  {
+  }
+
+  top::p_t top::FilledSquare::begin() const
+  {
+    return frame.aa;
+  }
+
+  top::p_t top::FilledSquare::next(p_t point) const
+  {
+    return next_point_in_filled(point, frame);
+  }
+
   void make_f(IDraw ** b, size_t &k)
   {
     b[0] = new Dot(0, 0);
@@ -336,7 +373,8 @@ bool operator!=(p_t a, p_t b)
     b[5] = new InclinedSeg({2, 0}, 5);
     b[6] = new Rectangle({0, -3}, 4, 3);
     b[7] = new Square({20, 3}, 3);
-    k = 8;
+    b[8] = new FilledSquare({20, -3}, 3);
+    k = 9;
   }
 }
 
@@ -344,7 +382,7 @@ int main()
 {
   int err = 0;
   using namespace top;
-  IDraw * f[8] = {};
+  IDraw * f[9] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
