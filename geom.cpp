@@ -1,4 +1,6 @@
 #include "geom.hpp"
+#include <stdexcept>
+#include <algorithm>
 
 bool top::operator==(p_t a, p_t b)
   {
@@ -18,3 +20,24 @@ size_t top::cols(frame_t fr)
   {
     return (fr.bb.x - fr.aa.x + 1);
   }
+
+top::frame_t top::build_frame(const p_t * pts, size_t s)
+{
+  if (!s)
+  {
+    throw std::logic_error("bad_size");
+  }
+  int minx = pts[0].x, maxx = minx;
+  int miny = pts[0].y, maxy = miny;
+  for (size_t i = 1; i < s; ++i)
+  {
+    minx = std::min(minx, pts[i].x);
+    maxx = std::max(maxx, pts[i].x);
+    miny = std::min(miny, pts[i].y);
+    maxy = std::max(maxy, pts[i].y);
+  }
+  p_t aa{minx, miny};
+  p_t bb{maxx, maxy};
+  return {aa, bb};
+  // min/max x,y -> frame_t
+}

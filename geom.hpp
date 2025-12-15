@@ -16,5 +16,6 @@ namespace top
   };
   size_t rows(frame_t fr);
   size_t cols(frame_t fr);
+  frame_t build_frame(const p_t * pts, size_t s);
 }
 #endif
