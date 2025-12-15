@@ -1,29 +1,9 @@
 #include <iostream>
+#include "geom.hpp"
+#include "idraw.hpp"
 
 namespace top
 {
-  struct p_t
-  {
-    int x, y;
-  };
-
- bool operator==(p_t a, p_t b)
-{
-  return a.x == b.x && a.y == b.y;
-}
-
-bool operator!=(p_t a, p_t b)
-{
-  return !(a == b);
-}
-
-  struct IDraw
-  {
-    virtual p_t begin() const = 0;
-    virtual p_t next(p_t) const = 0;
-    virtual ~IDraw() = default;
-  };
-
   struct Dot:IDraw
   {
     p_t begin() const override;
@@ -59,41 +39,7 @@ bool operator!=(p_t a, p_t b)
     }
     return k;
   }
-
-  struct frame_t
-  {
-    p_t aa;
-    p_t bb;
-  };
-
-  void extend(p_t ** pts, size_t s, p_t p)
-  {
-    p_t * res = new p_t [s + 1];
-    for (size_t i = 0; i < s; ++i)
-    {
-      res[i] = (*pts)[i];
-    }
-    res[s] = p;
-    delete [] *pts;
-    *pts = res;
-  }
-
-  void get_points(const IDraw & b, p_t ** pts, size_t & s)
-  {
-    p_t p = b.begin();
-    extend(pts, s, p);
-    size_t delta = 1;
-    while (b.next(p) != b.begin())
-    {
-      p = b.next(p);
-      extend(pts, s + delta, p);
-      ++delta;
-    }
-    s = s + delta;
-    // достать точки
-    // обновить массив
-    // размер!
-  }
+  
   frame_t build_frame(const p_t * pts, size_t s)
   {
     if (!s)
@@ -113,16 +59,6 @@ bool operator!=(p_t a, p_t b)
     p_t bb{maxx, maxy};
     return {aa, bb};
     // min/max x,y -> frame_t
-  }
-
-  size_t rows(frame_t fr)
-  {
-    return (fr.bb.y - fr.aa.y + 1);
-  }
-
-  size_t cols(frame_t fr)
-  {
-    return (fr.bb.x - fr.aa.x + 1);
   }
 
   char * build_canvas(frame_t fr, char fill)
