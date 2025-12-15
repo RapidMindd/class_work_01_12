@@ -1,8 +1,5 @@
 #include <iostream>
-#include "geom.hpp"
-#include "idraw.hpp"
-#include "dot.hpp"
-#include "canvas.hpp"
+#include "ascii_draw.hpp"
 
 namespace top
 {
