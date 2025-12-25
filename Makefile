@@ -1,2 +1,8 @@
-paint: main.cpp idraw.cpp geom.cpp dot.cpp canvas.cpp
-	$(CXX)$^ -o $@
+CPPFLAGS += -Wall -Wextra -std=c++11
+SRC = $(wildcard *.cpp)
+OBJ = $(SRC:%.cpp=%.o)
+paint: $(OBJ)
+	$(CXX) $^ -o $@
+
+clean:
+	$(RM) -rf $(OBJ) paint
