@@ -1,4 +1,7 @@
+#include <cctype>
 #include <iostream>
+#include <iomanip>
+#include <cassert>
 
 void hi()
 {
@@ -7,7 +10,23 @@ void hi()
 
 std::istream& getword(std::istream& is, char* word, size_t k, bool(*c)(char))
 {
-
+  assert(k > 0 && "k must be greater than 0");
+  if (!k || !word)
+  {
+    throw std::logic_error("bad buffer");
+  }
+  is >> std::noskipws;
+  size_t i = 0;
+  for (char next = 0; is && !c(next) && (i < k - 1); ++i)
+  {
+    is >> next;
+    word[i] = next;
+  }
+  if (i == k)
+  {
+    is.clear(is.rdstate() | std::ios::failbit);
+  }
+  return is >> std::skipws;
 }
 
 bool is_space(char c)
