@@ -3,12 +3,18 @@
 #include <iomanip>
 #include <cassert>
 
-void hi()
+void hi(std::istream& is)
 {
+  unsigned int i = 0;
+  is >> i;
+  if (!is)
+  {
+    throw std::runtime_error("hi excpects unsigned int in param");
+  }
   std::cout << "HI!\n";
 }
 
-void hello()
+void hello(std::istream&)
 {
   std::cout << "Hello!\n";
 }
@@ -55,10 +61,19 @@ size_t match(const char* word, const char* const* words, size_t k)
   return k;
 }
 
+struct Cmd
+{
+  virtual const char * name() const = 0;
+  virtual const char * help() const = 0;
+  virtual const char * desc() const = 0;
+  virtual void invoke() const = 0;
+};
+
 int main()
 {
   constexpr size_t cmds_count = 2;
-  void(*cmds[2])() = {hi, hello};
+  using cmd_t = void(*)(std::istream&);
+  cmd_t cmds[cmds_count] = {hi, hello};
   const char* const cmds_text[] = {"hi", "hello"};
   constexpr size_t b_capacity = 255;
   char word[b_capacity + 1] = {};
@@ -75,7 +90,20 @@ int main()
       word[size-1] = '\0';
       if (size_t i = match(word, cmds_text, cmds_count); i < cmds_count)
       {
-        cmds[i]();
+        try
+        {
+          cmds[i](std::cin);
+        }
+        catch (const std::exception &e)
+        {
+          std::cerr << "INVALID COMMAND: " << e.what() << "\n";
+          if (std::cin.fail())
+          {
+            std::cin.clear(std::cin.rdstate() ^ std::ios::failbit);
+          }
+          using lim_t = std::numeric_limits<std::streamsize>;
+          std::cin.ignore(lim_t::max(), '\n');
+        }
       }
       else
       {
